@@ -82,17 +82,21 @@ para a sua chave real.
 
 2. Execute o servidor embutido do PHP (a partir da raiz do projeto):
 
+```bash
+php -S localhost:8001
+```
 
+- Acesse: http://localhost:8001/public/index.html.
 
 ---
 
-​## 📝 Instruções de Uso
+## 📝 Instruções de Uso
 
-​Acesse a página. O clima da cidade padrão (Rio de Janeiro) deve ser carregado.
-​Digite o nome de qualquer cidade (Ex: Tóquio, Londres, Curitiba).
-​Clique em "Buscar Clima".
-​O JavaScript enviará a cidade como parâmetro para o src/api.php.
-​O api.php instanciará o WeatherClient e usará o método getWeather (que usa cURL) para obter e formatar os dados antes de devolvê-los ao frontend para exibição.
+Acesse a página. O clima da cidade padrão (Rio de Janeiro) deve ser carregado.  
+Digite o nome de qualquer cidade (Ex: Tóquio, Londres, Curitiba).  
+Clique em "Buscar Clima".  
+O JavaScript enviará a cidade como parâmetro para o `src/api.php`.  
+O `api.php` instanciará o `WeatherClient` e usará o método `getWeather` (que utiliza cURL) para obter e formatar os dados antes de devolvê-los ao frontend para exibição.
 
 ---
 
