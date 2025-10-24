@@ -82,12 +82,7 @@ para a sua chave real.
 
 2. Execute o servidor embutido do PHP (a partir da raiz do projeto):
 
-```bash
-php -S localhost:8001
-```
 
-- Acesse:
-http://localhost:8001/public/index.html.
 
 ---
 
