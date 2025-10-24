@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente de API de Clima (PHP POO)</title>
+    <meta name="author" content="Onivaldo Miquelino">          
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: ui-sans-serif, system-ui; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 flex justify-center">
+
+    <div class="w-full max-w-xl bg-white p-8 rounded-xl shadow-2xl">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">Clima: PHP POO e OpenWeatherMap</h1>
+        
+        <form id="weatherForm" class="flex gap-2 mb-8">
+            <input type="text" id="cityInput" placeholder="Digite o nome da cidade (Ex: São Paulo)" required
+                   class="flex-grow border border-gray-300 focus:border-indigo-500 rounded-lg p-3 text-lg transition duration-150">
+            <button type="submit" id="searchBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition">
+                Buscar Clima
+            </button>
+        </form>
+
+        <div id="weatherDisplay" class="p-6 border border-gray-200 rounded-lg hidden">
+            <div id="cityInfo" class="text-center mb-4">
+                <p class="text-xl font-semibold text-gray-700"></p>
+            </div>
+            
+            <div id="mainWeather" class="flex flex-col items-center justify-center">
+                <img id="weatherIcon" src="" alt="Ícone do clima" class="w-20 h-20 mb-2">
+                <p id="tempText" class="text-6xl font-extrabold text-gray-900 leading-none"></p>
+                <p id="descriptionText" class="text-xl text-gray-600 mt-1"></p>
+                <p id="feelsLikeText" class="text-md text-gray-500 mt-1"></p>
+            </div>
+
+            <div id="detailsGrid" class="grid grid-cols-2 gap-4 mt-6 text-center">
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <p class="font-bold text-gray-800" id="humidity"></p>
+                    <p class="text-sm text-gray-500">Umidade</p>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <p class="font-bold text-gray-800" id="windSpeed"></p>
+                    <p class="text-sm text-gray-500">Vento</p>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <p class="font-bold text-gray-800" id="sunrise"></p>
+                    <p class="text-sm text-gray-500">Nascer do Sol</p>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <p class="font-bold text-gray-800" id="sunset"></p>
+                    <p class="text-sm text-gray-500">Pôr do Sol</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="hidden p-4 mt-6 rounded-md text-sm"></div>
+    </div>
+
+    <script>
+        // ******************************************************************************
+        // ATENÇÃO: Mude esta URL para o caminho correto do seu arquivo api.php no servidor
+        // ******************************************************************************
+        const API_URL = 'http://localhost:8001/src/api.php'; 
+
+        // Elementos DOM
+        const weatherForm = document.getElementById('weatherForm');
+        const cityInput = document.getElementById('cityInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const weatherDisplay = document.getElementById('weatherDisplay');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Display elements
+        const cityInfo = document.getElementById('cityInfo').querySelector('p');
+        const weatherIcon = document.getElementById('weatherIcon');
+        const tempText = document.getElementById('tempText');
+        const descriptionText = document.getElementById('descriptionText');
+        const feelsLikeText = document.getElementById('feelsLikeText');
+        const humidity = document.getElementById('humidity');
+        const windSpeed = document.getElementById('windSpeed');
+        const sunrise = document.getElementById('sunrise');
+        const sunset = document.getElementById('sunset');
+
+        // --- Funções de Utilitário ---
+
+        function updateStatus(message, type = 'info') {
+            // ... (Função de status, pode ser a mesma dos projetos anteriores)
+             statusMessage.textContent = message;
+             statusMessage.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
+            
+             if (type === 'error') {
+                 statusMessage.classList.add('bg-red-100', 'text-red-800');
+             } else if (type === 'success') {
+                 statusMessage.classList.add('bg-green-100', 'text-green-800');
+             } else { // Loading/Info
+                  statusMessage.classList.add('bg-yellow-100', 'text-yellow-800');
+             }
+             statusMessage.classList.remove('hidden');
+        }
+
+        function clearStatus() {
+            statusMessage.classList.add('hidden');
+        }
+
+        // --- Funções Principais ---
+
+        async function fetchWeather(city) {
+            weatherDisplay.classList.add('hidden');
+            clearStatus();
+            updateStatus(`⏳ Buscando clima para ${city}...`, 'loading');
+            searchBtn.disabled = true;
+
+            try {
+                // Adiciona a cidade como parâmetro de consulta na URL
+                const response = await fetch(`${API_URL}?city=${encodeURIComponent(city)}`);
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    const data = result.data;
+                    renderWeather(data);
+                    updateStatus(`✅ Clima de ${data.city_name} carregado!`, 'success');
+                } else {
+                    throw new Error(result.error || 'Erro desconhecido ao carregar os dados.');
+                }
+            } catch (error) {
+                updateStatus(`❌ Erro: ${error.message}`, 'error');
+            } finally {
+                searchBtn.disabled = false;
+            }
+        }
+
+        function renderWeather(data) {
+            // Informações principais
+            cityInfo.textContent = `${data.city_name}, ${data.country}`;
+            weatherIcon.src = data.icon_url;
+            tempText.textContent = data.temp;
+            descriptionText.textContent = data.description;
+            feelsLikeText.textContent = `Sensação de ${data.feels_like}`;
+
+            // Detalhes
+            humidity.textContent = `${data.humidity}%`;
+            windSpeed.textContent = data.wind_speed;
+            sunrise.textContent = data.sunrise;
+            sunset.textContent = data.sunset;
+
+            weatherDisplay.classList.remove('hidden');
+        }
+
+        // --- Inicialização ---
+
+        weatherForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const city = cityInput.value.trim();
+            if (city) {
+                fetchWeather(city);
+            }
+        });
+        
+        // Carrega o clima padrão ao iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+             // O PHP tem um valor padrão, então podemos buscar o valor do input (que está vazio)
+             fetchWeather(cityInput.placeholder.split('(')[1].split(')')[0] || 'Rio de Janeiro'); 
+        });
+    </script>
+</body>
+</html>
+    
