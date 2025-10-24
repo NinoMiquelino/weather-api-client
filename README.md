@@ -87,7 +87,7 @@ php -S localhost:8001
 ```
 
 - Acesse: http://localhost:8001/public/index.html.
-
+- 
 ---
 
 ​## 📝 Instruções de Uso
