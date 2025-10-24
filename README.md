@@ -52,8 +52,7 @@ weather-api-client/
 ├── WeatherClient.php
 ├── README.md
 ├── .gitignore
-├── LICENSE
-└── data.json
+└── LICENSE
 ```
 ---
 
